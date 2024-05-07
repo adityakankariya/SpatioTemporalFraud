@@ -1,62 +1,34 @@
-# AntiFraud
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/semi-supervised-credit-card-fraud-detection/fraud-detection-on-amazon-fraud)](https://paperswithcode.com/sota/fraud-detection-on-amazon-fraud?p=semi-supervised-credit-card-fraud-detection)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/semi-supervised-credit-card-fraud-detection/node-classification-on-amazon-fraud)](https://paperswithcode.com/sota/node-classification-on-amazon-fraud?p=semi-supervised-credit-card-fraud-detection)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/semi-supervised-credit-card-fraud-detection/fraud-detection-on-yelp-fraud)](https://paperswithcode.com/sota/fraud-detection-on-yelp-fraud?p=semi-supervised-credit-card-fraud-detection)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/semi-supervised-credit-card-fraud-detection/node-classification-on-yelpchi)](https://paperswithcode.com/sota/node-classification-on-yelpchi?p=semi-supervised-credit-card-fraud-detection)
+# Lighter Model for a Deeper Wallet: Quantizing and Pruning STAN Credit Card Fraud Detection Model
 
-A Financial Fraud Detection Framework.
+A Financial Fraud Detection Framework Optimized for Edge Devices
 
-Source codes implementation of papers:
-- `MCNN`: Credit card fraud detection using convolutional neural networks, in ICONIP 2016. 
+Columbia University COMS 6998: Applied ML on the Cloud Spring 2024
+
+Authors: Samuel Braun, Steven Chase, Aditya Kankariya
+
+Based on the paper and code by Dawei Cheng, Sheng Xiang, Chencheng Shang,
+Yiyi Zhang, Fangzhou Yang, Liqing Zhang
 - `STAN`: Spatio-temporal attention-based neural network for credit card fraud detection, in AAAI2020
-- `STAGN`: Graph Neural Network for Fraud Detection via Spatial-temporal Attention, in TKDE2020
-- `GTAN`: Semi-supervised Credit Card Fraud Detection via Attribute-driven Graph Representation, in AAAI2023
-- `RGTAN`: Enhancing Attribute-driven Fraud Detection with Risk-aware Graph Representation, 
-
-
+- [GitHub](https://github.com/AI4Risk/antifraud)
 
 ## Usage
 
-### Data processing
-1. Run `unzip /data/Amazon.zip` and `unzip /data/YelpChi.zip` to unzip the datasets; 
-2. Run `python feature_engineering/data_process.py
-`
-to pre-process all datasets needed in this repo.
-
-### Training & Evalutaion
-<!-- 
-To use fraud detection baselines including GBDT, LSTM, etc., simply run
-
+To use our implementations of `STAN` run
 ```
-python main.py --method LSTM
-python main.py  --method GBDT
+python main.py --mode <mode>
 ```
-You may change relevant configurations in `config/base_cfg.yaml`. -->
 
-To test implementations of `MCNN`, `STAN` and `STAGN`, run
-```
-python main.py --method mcnn
-python main.py --method stan
-python main.py --method stagn
-```
-Configuration files can be found in `config/mcnn_cfg.yaml`, `config/stan_cfg.yaml` and `config/stagn_cfg.yaml`, respectively.
+Modes that can be called with our model:
+- `train`: Trains a model using the data in the data folder and the hyperparameters in the config file. Saves the model state dictionary to the path found in the config file
+- `test`: Loads a pre-trained model from the path in the config file and evaluates its performace. Prints the performance metrics
+- `prune`: Performs pruning on a pre-trained model loaded from the path in the config file. Will save the model to the file path in the config filie with "_pruned" added to the file name. The number of pruning iterations can be set in the config file.
+- `quantize`: Will load a pre-trained model from the model path in the config file and will perform quantization. Will save the model to the file path in the config filie with "_quantized" added to the file name.
 
-Models in `GTAN` and `RGTAN` can be run via:
-```
-python main.py --method gtan
-python main.py --method rgtan
-```
-For specification of hyperparameters, please refer to `config/gtan_cfg.yaml` and `config/rgtan_cfg.yaml`.
-
-
+Configuration file can be found in `config/stan_cfg.yaml`
 
 ### Data Description
 
 There are three datasets, YelpChi, Amazon and S-FFSD, utilized for model experiments in this repository.
-
-<!-- YelpChi and Amazon can be downloaded from [here](https://github.com/YingtongDou/CARE-GNN/tree/master/data) or [dgl.data.FraudDataset](https://docs.dgl.ai/api/python/dgl.data.html#fraud-dataset).
-
-Put them in `/data` directory and run `unzip /data/Amazon.zip` and `unzip /data/YelpChi.zip` to unzip the datasets. -->
 
 YelpChi and Amazon datasets are from [CARE-GNN](https://dl.acm.org/doi/abs/10.1145/3340531.3411903), whose original source data can be found in [this repository](https://github.com/YingtongDou/CARE-GNN/tree/master/data).
 
@@ -70,45 +42,17 @@ S-FFSD is a simulated & small version of finacial fraud semi-supervised dataset.
 |Location|string|from $\mathbf{L_0}$  to $\mathbf{L}_{nl}$ |$nl$ denotes the number of transacation locations.|
 |Type|string|from $\mathbf{TP_0}$ to $\mathbf{TP}_{np}$|$np$ denotes the number of different transaction types. |
 |Labels|np.int32|from **0** to **2**|**2** denotes **unlabeled**||
-
-
-> We are looking for interesting public datasets! If you have any suggestions, please let us know!
-
-## Test Result
-The performance of five models tested on three datasets are listed as follows:
-| |YelpChi| | |Amazon| | |S-FFSD| | |
-|:----|:----|:----|:----|:----|:----|:----|:----|:----|:----|
-| |AUC|F1|AP|AUC|F1|AP|AUC|F1|AP|
-|MCNN||- | -| -| -| -|0.7129|0.6861|0.3309|
-|STAN|- |- | -| -| -| -|0.7446|0.6791|0.3395|
-|STAGN|- |- | -| -| -| -|0.7659|0.6852|0.3599|
-|GTAN|0.9241|0.7988|0.7513|0.9630|0.9213|0.8838|0.8286|0.7336|0.6585|
-|RGTAN|0.9498|0.8492|0.8241|0.9750|0.9200|0.8926|0.8461|0.7513|0.6939|
-
-> `MCNN`, `STAN` and `STAGN` are presently not applicable to YelpChi and Amazon datasets.
-
 ## Repo Structure
 The repository is organized as follows:
 - `models/`: the pre-trained models for each method. The readers could either train the models by themselves or directly use our pre-trained models;
 - `data/`: dataset files;
-- `config/`: configuration files for different models;
+- `config/`: configuration files for model;
 - `feature_engineering/`: data processing;
 - `methods/`: implementations of models;
-- `main.py`: organize all models;
+- `main.py`: main driver of model;
 - `requirements.txt`: package dependencies;
 
-    
-## Requirements
-```
-python           3.7
-scikit-learn     1.0.2
-pandas           1.3.5
-numpy            1.21.6
-networkx         2.6.3
-scipy            1.7.3
-torch            1.12.1+cu113
-dgl-cu113        0.8.1
-```
+## Sources:
 
 ### Contributors :
 <a href="https://github.com/AI4Risk/antifraud/graphs/contributors">
